@@ -12,7 +12,8 @@ static void refresh_btn_event_handler(lv_event_t * e)
 
 static void reset_btn_event_handler(lv_event_t * e)
 {
-    global_config.ipConfigured = false;
+    global_config.wifiConfigured = false;
+    WriteGlobalConfig();
     ESP.restart();
 }
 

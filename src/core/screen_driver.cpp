@@ -96,6 +96,9 @@ static lv_disp_draw_buf_t draw_buf;
     #ifdef ESP32_ZX7D00CE01S
     #include "../drivers/esp32-ZX7D00CE01S.h"
     #endif
+    #ifdef ESP32_S3TOUCHLCD7
+    #include "../drivers/esp32-S3TOUCHLCD7.h"
+    #endif
 
 #endif
 
@@ -248,8 +251,8 @@ void _TC::init(void)
     // Do it again ?
     Wire.begin(TOUCH_SDA, TOUCH_SCL, (uint32_t)I2C_TOUCH_FREQUENCY);
 
-    Serial.println("Check ACK on addr request on 0x");
-    Serial.println(touch.i2cAddr, HEX);
+    Serial.print("Check ACK on addr request on 0x");
+    Serial.print(touch.i2cAddr, HEX);
 
     Wire.beginTransmission(touch.i2cAddr);  
     int error = Wire.endTransmission();
