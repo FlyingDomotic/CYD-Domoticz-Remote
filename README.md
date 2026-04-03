@@ -56,7 +56,8 @@ For the hardware part (according to your device) mains settings are in the file 
 	-DFASTCLIC # Enable 1 clic action for some widget
 	#-DNO_INFO_PAGE # Disable the Info panel
 	#-DNO_GROUP_PAGE # Disable the Group/scene panel
-	#-DCUSTOM_FONT
+	#-DCUSTOM_FONT # See fonts paragraph
+    #-DUSER_FONT # See fonts paragraph
 	#-DAUTO_BRIGHTNESS
 	#-DLIGHTWS # Only possible for version > 16088, decrease WS requests.
 	#-DPUSHOTA # To enable PUSH OTA (Don't enable both OTA)
@@ -81,6 +82,13 @@ There is 2 options for OTA, PUSHOTA and PULLOTA you can enable one of them or no
 - esp32-8048S050C
 - esp32-JC2432W328
 - esp32-S3TOUCHLCD7 (WaveShare ESP32S3 Touch LCD 7)
+
+## Fonts
+
+By default, fonts only contains 7 bits ASCII printable characters, plus some icons.
+Defining CUSTOM_FONT, you add few symbols (€°µ¥£²³), but remove icons.
+Defining USER_FONT, you will have by default ASCII printable characters, plus icons, plus symbols, plus few (mainly French) accents.
+Those wanting to finely tune font contents, add some specific (accentuated) characters or reduce font size, may edit `makeUserFont.sh` file and run it to generate new user fonts. In this case, `lv_font_conv` tool is needed, and can be installed by `npm i lv_font_conv -g`. Default GUI uses some icons, trimming fonts too aggresively may lead to strange displays.
 
 ## Actuals issues   
 - Memory ^^, lot of feature are still in Beta test. For exemple Domoticz JSON are too big to be handled by the device, it cause problem for chart for exemple.
