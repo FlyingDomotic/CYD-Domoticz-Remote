@@ -252,7 +252,7 @@ void _TC::init(void)
     Wire.begin(TOUCH_SDA, TOUCH_SCL, (uint32_t)I2C_TOUCH_FREQUENCY);
 
     Serial.print("Check ACK on addr request on 0x");
-    Serial.println(touch.i2cAddr, HEX);
+    Serial.print(touch.i2cAddr, HEX);
 
     Wire.beginTransmission(touch.i2cAddr);  
     int error = Wire.endTransmission();
