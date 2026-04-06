@@ -384,7 +384,7 @@ void device_panel_init(lv_obj_t* panel)
     lv_obj_set_style_img_recolor(img, color, 0);
     //Label
     label = lv_label_create(GridTop);
-    lv_obj_set_style_text_font(label, &font1, 0);
+    lv_obj_set_style_text_font(label, &big_font_bold, 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP); 
     lv_label_set_text(label, SelectedDevice->name);
     //lv_obj_align(label, LV_ALIGN_RIGHT_MID, 0, 0);
@@ -558,7 +558,7 @@ void device_panel_init(lv_obj_t* panel)
         label = lv_label_create(GridBig);
         lv_obj_set_size(label, lv_pct(100), lv_pct(80)); 
         lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
-        lv_obj_set_style_text_font(label, &font1, 0);
+        lv_obj_set_style_text_font(label, &big_font_bold, 0);
         lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
         lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
         lv_obj_set_style_text_color(label, color, 0);
@@ -641,7 +641,7 @@ void device_panel_init(lv_obj_t* panel)
         lv_obj_set_size(obj, LV_PCT(80), LV_PCT(30));
         label = lv_label_create(obj);
         //lv_obj_set_style_text_color(label, color, 0); // no action ???
-        lv_obj_set_style_text_font(label, &font1, 0);
+        lv_obj_set_style_text_font(label, &big_font_bold, 0);
         lv_label_set_text_static(label, "+");
         lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
         lv_obj_set_pos(obj, 0, 0);
@@ -650,7 +650,7 @@ void device_panel_init(lv_obj_t* panel)
         obj = lv_btn_create(GridSmall);
         lv_obj_set_size(obj, LV_PCT(80), LV_PCT(30));
         label = lv_label_create(obj);
-        lv_obj_set_style_text_font(label, &font1, 0);
+        lv_obj_set_style_text_font(label, &big_font_bold, 0);
         lv_label_set_text_static(label, "-");
         lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
         lv_obj_set_pos(obj, 0, LV_PCT(33));
@@ -659,7 +659,7 @@ void device_panel_init(lv_obj_t* panel)
         obj = lv_btn_create(GridSmall);
         lv_obj_set_size(obj, LV_PCT(80), LV_PCT(30));
         label = lv_label_create(obj);
-        lv_obj_set_style_text_font(label, &font1, 0);
+        lv_obj_set_style_text_font(label, &big_font_bold, 0);
         lv_label_set_text_static(label, "Set");
         lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
         lv_obj_set_pos(obj, 0, LV_PCT(66));
@@ -674,7 +674,7 @@ void device_panel_init(lv_obj_t* panel)
     {
 
         label = lv_label_create(GridSmall);
-        lv_obj_set_style_text_font(label, &font1, 0);
+        lv_obj_set_style_text_font(label, &big_font_bold, 0);
         lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
         lv_obj_set_size(label, lv_pct(100), lv_pct(100));
         lv_label_set_text(label, SelectedDevice->data);
@@ -710,7 +710,7 @@ void device_panel_init(lv_obj_t* panel)
 #else
             lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 3, 2, 4, 1, true, 35);
 #endif
-            lv_obj_set_style_text_font(chart, &font2, 0);
+            lv_obj_set_style_text_font(chart, &small_font, 0);
 
             Serial.printf("Making chart with Range %d > %d\n",min , max);
 

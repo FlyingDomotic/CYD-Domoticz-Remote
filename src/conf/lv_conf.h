@@ -358,29 +358,47 @@
 #define LV_FONT_UNSCII_8  0
 #define LV_FONT_UNSCII_16 0
 
-// For small device
+// For small device 10, 12, 14 bold
 #if DEVICE_SIZE == 1
     #define LV_FONT_MONTSERRAT_10 1
     #define LV_FONT_MONTSERRAT_12 1
     //#define LV_FONT_MONTSERRAT_14 1
-// For bigger device
+
+// For bigger device 14, 16, 18 bold
 #else
     #define LV_FONT_MONTSERRAT_14 1
     #define LV_FONT_MONTSERRAT_16 1
     //#define LV_FONT_MONTSERRAT_18 1
 #endif
 
+
 /*Optionally declare custom fonts here.
  *You can use these fonts as default font too and they will be available globally.
  *E.g. #define LV_FONT_CUSTOM_DECLARE   LV_FONT_DECLARE(my_font_1) LV_FONT_DECLARE(my_font_2)*/
-#define LV_FONT_CUSTOM_DECLARE
 
-/*Always set a default font*/
-#if DEVICE_SIZE == 1
-    #define LV_FONT_DEFAULT &lv_font_montserrat_14
+ /*Always set a default font*/
+
+#ifdef CUSTOM_FONT
+    #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(Montserrat_14_user)
+
+    #if DEVICE_SIZE == 1
+        #define LV_FONT_DEFAULT &Montserrat_14_user
+    #else
+        #define LV_FONT_DEFAULT &Montserrat_18_user
+    #endif
 #else
-    #define LV_FONT_DEFAULT &lv_font_montserrat_14
+    #define LV_FONT_CUSTOM_DECLARE
+
+    #if DEVICE_SIZE == 1
+        #define LV_FONT_DEFAULT &lv_font_montserrat_14
+    #else
+        #define LV_FONT_MONTSERRAT_18 1
+        #define LV_FONT_DEFAULT &lv_font_montserrat_18
+    #endif
 #endif
+
+
+
 
 /*Enable handling large font and/or fonts with a lot of characters.
  *The limit depends on the font size, font face and bpp.
