@@ -29,8 +29,45 @@ const lv_img_dsc_t *Geticon(int type);
 // With setting bpp = 4 , range 32-126, and with special char €°µ¥£²³
 // Montserrat-Regular.ttf and Montserrat-Bold.ttf
 
+#if DEVICE_SIZE == 1
 
-const lv_font_t font1 = LARGE_FONT_NAME;
-const lv_font_t font3 = MEDIUM_FONT_NAME;
-const lv_font_t font2 = SMALL_FONT_NAME;
+    #ifdef CUSTOM_FONT
+        // Custom
+        LV_FONT_DECLARE(Montserrat_10_user)
+        const lv_font_t font2 = Montserrat_10_user;
+        LV_FONT_DECLARE(Montserrat_12_user)
+        const lv_font_t font3 = Montserrat_12_user;
+        LV_FONT_DECLARE(Montserrat_Bold_14_user)
+        const lv_font_t font1 = Montserrat_Bold_14_user;
+    #else
+        // Native
+        const lv_font_t font2 = lv_font_montserrat_10;
+        //Custom
+        LV_FONT_DECLARE(Montserrat_12)
+        const lv_font_t font3 = Montserrat_12;
+        LV_FONT_DECLARE(Montserrat_Bold_14)
+        const lv_font_t font1 = Montserrat_Bold_14;
+    #endif
+
+#else
+
+    #ifdef CUSTOM_FONT
+        //Custom
+        LV_FONT_DECLARE(Montserrat_14_user)
+        const lv_font_t font2 = Montserrat_14_user;
+        LV_FONT_DECLARE(Montserrat_16_user)
+        const lv_font_t font3 = Montserrat_16_user;
+        LV_FONT_DECLARE(Montserrat_Bold_18_user)
+        const lv_font_t font1 = Montserrat_Bold_18_user;
+    #else
+        // Native
+        const lv_font_t font2 = lv_font_montserrat_14;
+        //Custom
+        LV_FONT_DECLARE(Montserrat_16)
+        const lv_font_t font3 = Montserrat_16;
+        LV_FONT_DECLARE(Montserrat_Bold_18)
+        const lv_font_t font1 = Montserrat_Bold_18;
+    #endif
+
+#endif
 
