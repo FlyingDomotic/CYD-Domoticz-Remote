@@ -3,7 +3,6 @@
 #include "panels/panel.h"
 #include "../core/data_setup.h"
 #include "../core/ip_engine.h"
-#include "../core/data_setup.h"
 
 static lv_obj_t * tv;
 static int actived_panel = 0;
@@ -54,8 +53,6 @@ void RefreshScenePage(void)
     }
 }
 #endif
-
-static int swipe = 0;
 
 
 
@@ -124,6 +121,10 @@ void navigation_screen(unsigned char active_panel)
             device_panel_init(panel);
             break;
         case SETTING_PANEL:// Settings
+            settings_panel_init(panel);
+            break;
+
+        default:
             settings_panel_init(panel);
             break;
     }

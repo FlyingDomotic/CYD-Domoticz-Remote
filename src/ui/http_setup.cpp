@@ -25,7 +25,8 @@ static void ta_event_cb(lv_event_t * e) {
     }
     else if (code == LV_EVENT_READY) 
     {
-        strcpy(global_config.ServerHost, lv_textarea_get_text(ipEntry));
+        strncpy(global_config.ServerHost, lv_textarea_get_text(ipEntry), sizeof(global_config.ServerHost) - 1);
+        global_config.ServerHost[sizeof(global_config.ServerHost) - 1] = '\0';
         global_config.ServerPort = atoi(lv_textarea_get_text(portEntry));
 
         if (verify_ip())
@@ -91,8 +92,8 @@ void WS_init_inner(){
     lv_keyboard_set_textarea(keyboard, ipEntry);
 }
 
-long last_data_update_ip = -10000;
-const long data_update_interval_ip = 10000;
+long last_data_update_ip = 0;
+#define DATA_UPDATE_INTERVAL_IP 10000
 int retry_count = 0;
 
 void WS_init(void)
@@ -116,7 +117,7 @@ void WS_init(void)
         lv_timer_handler();
         lv_task_handler();
     
-        if (!WS_Running && (millis() - last_data_update_ip) > data_update_interval_ip)
+        if (!WS_Running() && ((millis() - last_data_update_ip) > DATA_UPDATE_INTERVAL_IP))
         {
 
             Serial.println(F("Waiting"));

@@ -28,7 +28,8 @@ static void ta_event_cb(lv_event_t * e) {
         if (len > 0)
         {
             global_config.wifiConfigured = true;
-            strcpy(global_config.wifiPassword, txt);
+            strncpy(global_config.wifiPassword, txt, sizeof(global_config.wifiPassword) - 1);
+            global_config.wifiPassword[sizeof(global_config.wifiPassword) - 1] = '\0';
             //Serial.println(txt); // Don't print pass on log
             WriteGlobalConfig();
         }
@@ -52,6 +53,7 @@ void wifi_pass_entry(const char* ssid){
     lv_obj_align(passEntry, LV_ALIGN_TOP_LEFT, 10, 40);
     lv_obj_add_event_cb(passEntry, ta_event_cb, LV_EVENT_ALL, NULL);
     lv_obj_set_size(passEntry, LCD_WIDTH - 20, 60);
+    lv_textarea_set_max_length(passEntry, sizeof(global_config.wifiPassword) - 1);
 
     lv_obj_t * keyboard = lv_keyboard_create(lv_scr_act());
     lv_keyboard_set_textarea(keyboard, passEntry);
@@ -64,9 +66,15 @@ static void wifi_btn_event_handler(lv_event_t * e){
     if(code == LV_EVENT_CLICKED) {
         delay(100);
         lv_obj_t * list_btn = (lv_obj_t *)lv_event_get_user_data(e);
-        strcpy(global_config.wifiSSID, lv_list_get_btn_text(obj, list_btn));
+        const char * ssid = lv_list_get_btn_text(obj, list_btn);
+
+        if (!ssid) return; // sécurité si le texte est NULL
+
+        strncpy(global_config.wifiSSID, ssid, sizeof(global_config.wifiSSID) - 1);
+        global_config.wifiSSID[sizeof(global_config.wifiSSID) - 1] = '\0';
+
         Serial.println(global_config.wifiSSID);
-        wifi_pass_entry(lv_list_get_btn_text(obj, list_btn));
+        wifi_pass_entry(ssid);
     }
 }
 
@@ -124,12 +132,15 @@ void wifi_init_inner(){
         char* ssid_copy = (char*)malloc(ssid.length() + 1);
         int j = 0;
 
-        for (; j < ssid.length(); ++j){
+        /*
+        for (; j < ssid.length(); ++j)
+        {
             if (ssid[j] == '\0')
                 continue;
 
             ssid_copy[j] = ssid[j];
-        }
+        }*/
+        strcpy(ssid_copy, ssid.c_str());
 
         ssid_copy[j] = '\0';
 
@@ -196,13 +207,24 @@ void wifi_init()
     Serial.print(F("Wifi connecting to SSID: "));
     Serial.println(global_config.wifiSSID);
     WiFi.begin(global_config.wifiSSID, global_config.wifiPassword);
+    unsigned long startAttempt = millis();
 
     while (WiFi.status() != WL_CONNECTED)
     {
 
-        if (millis() - print_timer > print_freq){
+        if (millis() - print_timer > print_freq)
+        {
             print_timer = millis();
-            Serial.printf("WiFi Status: %s\n", errs[WiFi.status()]);
+            int status = WiFi.status();
+            Serial.printf("WiFi Status: %s\n", (status < 7) ? errs[status] : "Unknown");
+        }
+
+        if (millis() - startAttempt > 15000) // 15 secondes
+        {
+            Serial.println(F("WiFi connection failed, back to config"));
+            global_config.wifiConfigured = false;
+            wifi_init_inner();
+            return;
         }
         
         lv_timer_handler();

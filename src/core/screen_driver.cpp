@@ -217,7 +217,7 @@ void _TC::init(void)
     Wire.begin(TOUCH_SDA, TOUCH_SCL, (uint32_t)I2C_TOUCH_FREQUENCY);
     delay(500);
     touch.setHandler(GT911_setXY); // not used
-    GTInfo* info;
+    GTInfo* info = nullptr;
 
     if(touch.begin(TOUCH_IRQ, TOUCH_RST, I2C_TOUCH_ADDRESS))
     {
@@ -225,7 +225,7 @@ void _TC::init(void)
     }
 
 #if TOUCH_IRQ == -1
-    if(info->xResolution == 0 || info->yResolution == 0)
+    if(info && info->xResolution == 0 || info->yResolution == 0)
     {
         // Probe both addresses if IRQ is not connected
         for(uint8_t i = 0; i < 4; i++)
@@ -233,7 +233,7 @@ void _TC::init(void)
             if(touch.begin(TOUCH_IRQ, TOUCH_RST, i < 2 ? 0x5d : 0x14))
             {
                 info = touch.readInfo();
-                if(info->xResolution > 0 && info->yResolution > 0) break;
+                if(info && info->xResolution > 0 && info->yResolution > 0) break;
             }
         }
     }
@@ -422,6 +422,7 @@ void screen_timer_sleep(lv_timer_t *timer)
     //value from sensor is 0(light)-4096(dark) so invert value to 0(dark)-4096(light) and divide with 16,06 to get 0-255
     int b = (4096 -(cds))/16.06; 
     if (b>= global_config.brightness) b = global_config.brightness; //if value b is higher than config settings use config settings
+    if (b < 0) b = 0; // For negative values
     if (b< 10) b = 10; //if value b is lower than 10 set 10 as lowest brightness
     Serial.printf("Brightness value: %d\n", b);
 
@@ -462,7 +463,7 @@ void screen_timer_period(uint32_t period)
 
 void set_screen_timer_period()
 {
-    screen_timer_period(global_config.screenTimeout * 1000 * 60);
+    screen_timer_period((uint32_t)global_config.screenTimeout * 1000 * 60);
     screen_timer_start();
 }
 
@@ -612,7 +613,14 @@ void screen_setup()
     if (!buf)
     {
         Serial.println(F("LVGL disp_draw_buf allocate failed!"));
-        return;
+        // Rapid blink to show the error visualy
+        while (true)
+        {
+            screen_setBrightness(255);
+            delay(200);
+            screen_setBrightness(0);
+            delay(200);
+        }
     }
 
     lv_disp_draw_buf_init(&draw_buf, buf, NULL, VDBsize);

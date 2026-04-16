@@ -6,7 +6,7 @@
 
 static WebSocketsClient WSclient;
 static bool connect_ok = false;
-unsigned long total_data_lenght;
+unsigned long total_data_lengh;
 
 extern char TmpBuffer[];
 
@@ -22,7 +22,12 @@ void InitIPEngine(void)
     filter["result"][0]["idx"] = true;
     filter["result"][0]["Name"] = true;
 
-    total_data_lenght = 0;
+    filter["result"][0]["Level"] = true;
+    filter["result"][0]["Rain"] = true;
+    filter["result"][0]["Type"] = true;
+    filter["result"][0]["Rain"] = true;
+
+    total_data_lengh = 0;
 }
 
 bool verify_ip(){
@@ -39,10 +44,13 @@ bool HTTPGETRequest(char * url2)
 //https://github.com/bblanchon/ArduinoJson/issues/1705
 bool HTTPGETRequestWithReturn(const char * url2, JsonDocument *doc, bool NeedFilter)
 {
+
     HTTPClient client;
     lv_snprintf(TmpBuffer, 150, "http://%s:%d%s",global_config.ServerHost, global_config.ServerPort, url2);
     //String url = "http://" + String(global_config.ServerHost) + ":" + String(global_config.ServerPort) + url2;
+
     int httpCode;
+
     try {
         Serial.println(TmpBuffer);
         client.useHTTP10(true); // Unfortunately, by using the underlying Stream, we bypass the code that handles chunked transfer encoding, so we must switch to HTTP version 1.0.
@@ -79,8 +87,12 @@ bool HTTPGETRequestWithReturn(const char * url2, JsonDocument *doc, bool NeedFil
             Serial.printf("Can't deserializeJson JSON : %s\n",err.c_str());
             Serial.printf("content Length : %d\n", client.getSize());
             Serial.printf("Free memory : %d\n", ESP.getMaxAllocHeap());
+
+            client.end();
             return false;
         }
+
+        client.end();
 
         //Serial.printf("Can't deserializeJson JSON : %s\n",err.c_str());
         //Serial.printf("content Length : %d\n", client.getSize());
@@ -134,19 +146,24 @@ static void hexdump(const void *mem, uint32_t len, uint8_t cols = 16) {
 //
 void subscribedeviceWS(short r, const char *c)
 {
+    char localBuffer[512];
+
     if (r == 0)
     {
-        lv_snprintf(TmpBuffer,200,"{\"event\":\"request\",\"query\":\"type=command&param=getdevices&rid=");
-        lv_snprintf(TmpBuffer,200, "%s%s", TmpBuffer, c);
+        lv_snprintf(localBuffer, sizeof(localBuffer),"{\"event\":\"request\",\"query\":\"type=command&param=getdevices&rid=%s\"}", c);
     }
     else
     {
-        lv_snprintf(TmpBuffer,200,"{\"event\":\"request\",\"query\":\"type=command&param=");
-        lv_snprintf(TmpBuffer,200, "%s%s", TmpBuffer, c);
+        lv_snprintf(localBuffer, sizeof(localBuffer), "{\"event\":\"request\",\"query\":\"type=command&param=%s\"}", c);
     }
-    lv_snprintf(TmpBuffer,200, "%s%s", TmpBuffer, "\"}");
-    Serial.printf("Special Setting to WS: %s\n", TmpBuffer);
-    WSclient.sendTXT(TmpBuffer);
+
+    if (strlen(localBuffer) >= sizeof(localBuffer) - 1)
+    {
+        Serial.println(F("[WS] subscribedeviceWS: buffer too small !"));
+    }
+
+    Serial.printf("Special Setting to WS: %s\n", localBuffer);
+    WSclient.sendTXT(localBuffer);
 }
 
 static void webSocketEvent(WStype_t type, uint8_t * payload, size_t length)
@@ -169,9 +186,10 @@ static void webSocketEvent(WStype_t type, uint8_t * payload, size_t length)
             if (length > 0)
             {
 
-                total_data_lenght += length;
+                total_data_lengh += length;
 
                 JsonDocument doc;
+                doc.clear();
 
                 DeserializationError err = deserializeJson(doc, payload, length);
 
@@ -186,7 +204,12 @@ static void webSocketEvent(WStype_t type, uint8_t * payload, size_t length)
                         {
                             //On the request data is a string so need to be deserialized too
                             JsonDocument doc2;
-                            deserializeJson(doc2, doc["data"].as<const char*>());
+
+                            DeserializationError err2 = deserializeJson(doc2, doc["data"].as<const char*>());
+                            if (err2) {
+                                Serial.printf("[WSc] Can't deserialize doc2: %s\n", err2.c_str());
+                                break;
+                            }
                             //JsonObject RJson = doc2.as<JsonObject>();
 
                             //char buffer[4096];
@@ -259,6 +282,11 @@ void WS_Run(void)
 {
     connect_ok = false;
 
+    if (WSclient.isConnected())
+    {
+        WSclient.disconnect();
+    }
+
     Serial.printf("Connecting to %s:%d\n",global_config.ServerHost, global_config.ServerPort);
 
     // server address, port and URL
@@ -283,5 +311,5 @@ void Websocket_loop(void)
 
 unsigned long total_WS_lenght(void)
 {
-    return total_data_lenght/1024;
+    return total_data_lengh/1024;
 }

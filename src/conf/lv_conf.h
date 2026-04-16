@@ -332,9 +332,9 @@
 //#define LV_FONT_MONTSERRAT_14 0
 //#define LV_FONT_MONTSERRAT_16 0
 //#define LV_FONT_MONTSERRAT_18 0
-#define LV_FONT_MONTSERRAT_20 0
-#define LV_FONT_MONTSERRAT_22 0
-#define LV_FONT_MONTSERRAT_24 0
+#define LV_FONT_MONTSERRAT_20 1
+#define LV_FONT_MONTSERRAT_22 1
+#define LV_FONT_MONTSERRAT_24 1
 #define LV_FONT_MONTSERRAT_26 0
 #define LV_FONT_MONTSERRAT_28 0
 #define LV_FONT_MONTSERRAT_30 0
@@ -358,27 +358,13 @@
 #define LV_FONT_UNSCII_8  0
 #define LV_FONT_UNSCII_16 0
 
-// For small device 10, 12, 14 bold
-#if DEVICE_SIZE == 1
-    #define LV_FONT_MONTSERRAT_10 1
-    #define LV_FONT_MONTSERRAT_12 1
-    //#define LV_FONT_MONTSERRAT_14 1
-
-// For bigger device 14, 16, 18 bold
-#else
-    #define LV_FONT_MONTSERRAT_14 1
-    #define LV_FONT_MONTSERRAT_16 1
-    //#define LV_FONT_MONTSERRAT_18 1
-#endif
-
-
 /*Optionally declare custom fonts here.
  *You can use these fonts as default font too and they will be available globally.
  *E.g. #define LV_FONT_CUSTOM_DECLARE   LV_FONT_DECLARE(my_font_1) LV_FONT_DECLARE(my_font_2)*/
 
  /*Always set a default font*/
 
-#ifdef CUSTOM_FONT
+#if FONT_TO_USE == 2
     #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(Montserrat_14_user)
 
     #if DEVICE_SIZE == 1
@@ -386,12 +372,29 @@
     #else
         #define LV_FONT_DEFAULT &Montserrat_18_user
     #endif
-#else
-    #define LV_FONT_CUSTOM_DECLARE
+#elif FONT_TO_USE == 3
+    #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(Montserrat_14_custom)
 
     #if DEVICE_SIZE == 1
-        #define LV_FONT_DEFAULT &lv_font_montserrat_14
+        #define LV_FONT_DEFAULT &Montserrat_14_custom
     #else
+        #define LV_FONT_DEFAULT &Montserrat_18_custom
+    #endif
+#else
+
+    #define LV_FONT_CUSTOM_DECLARE
+
+    // For small device 10, 12, 14 bold
+    #if DEVICE_SIZE == 1
+        #define LV_FONT_MONTSERRAT_10 1
+        #define LV_FONT_MONTSERRAT_12 1
+
+        #define LV_FONT_DEFAULT &lv_font_montserrat_14
+    // For bigger device 14, 16, 18 bold
+    #else
+        #define LV_FONT_MONTSERRAT_14 1
+        #define LV_FONT_MONTSERRAT_16 1
+
         #define LV_FONT_MONTSERRAT_18 1
         #define LV_FONT_DEFAULT &lv_font_montserrat_18
     #endif
