@@ -313,6 +313,7 @@ const lv_img_dsc_t *Geticon(int type)
 
 void device_panel_init(lv_obj_t* panel)
 {
+    slider_label = nullptr; // Reset label pointer for each new panel init
 
     lv_color_t color = Getcolor(SelectedDevice->type);
     const lv_img_dsc_t *icon = Geticon(SelectedDevice->type);
@@ -663,7 +664,7 @@ void device_panel_init(lv_obj_t* panel)
         lv_label_set_text_static(label, "Set");
         lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
         lv_obj_set_pos(obj, 0, LV_PCT(66));
-        lv_obj_add_event_cb(obj, TH_btn_event_handler, LV_EVENT_CLICKED, (char *)3);
+        lv_obj_add_event_cb(obj, TH_btn_event_handler, LV_EVENT_CLICKED, (void *)3);
     }
 
     // Other sensors

@@ -27,12 +27,13 @@ There is different way to install the code on th device, but I think this one is
 - Install device drivers, for exemple here https://www.wch-ic.com/downloads/CH341SER_EXE.html   
 - Donwload Visual Studio Code https://code.visualstudio.com/    
 - Install PlatformIO on it https://docs.platformio.org/en/latest/integration/ide/vscode.html#installation   
-- Download the project and open it with Visual Studio Code.
+- Download the project, extract the folder, and open it with Visual Studio Code. Open the complete folder.   
 - Take a look in the platformio.ini file (you can found usefull information/setting in it).   
-- Configure your device. ATM the project is configured for the 2432S028R, so you need to create a board configuration file in the "boards" folder (https://github.com/Smanar/CYD-Domoticz-Remote/tree/main/boards) and set it in the platformio.ini file (l14). You can find information to make it on google, for exemple on the first link of this part, else just ask me, I can try to make one.   
+- Select your device. The project is configured by default for the 2432S028R, you can select other tested hardware in the platformio.ini file, on the [platformio] part, just comment the previous one and uncomment your hardware. You can add too unsupported device with some file modifications, or give me information about it, I can try to add it.   
 - ???
-- Just launch a compilation (Build) and upload (Upload) the code on the device using the USB cable. Don't forget to press the button (Boot) on the device to autorise the action.
-- On first launch, configure the Wifi, the domoticz IP and port, and on setting select the devices you want o display on the Homepage.   
+- Just launch a compilation (Build) and upload (Upload) the code on the device using the USB cable. Don't forget to press the button (Boot) on the device to autorise the action. You just need to use icons on the application bottom, you don't need to use menus.
+- On domoticz, add the device ip to the "trusted network" (else it will be blocked). The project works fine on port 8080 but not sure on 443.   
+- On first launch, configure the Wifi, the domoticz IP and port, and on setting select the devices you want o display on the Homepage. If you haven't used a configuration fle or hardcoded the settings.   
 
 ## Settings   
 
