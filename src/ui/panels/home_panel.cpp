@@ -343,7 +343,7 @@ void group_panel_init(lv_obj_t* panel)
         return;
     }
     
-    short x,y = 0;
+    short x = 0, y = 0;
     short cx,cy;
     int idx = 0;
     const char *name;

@@ -25,7 +25,6 @@ void InitIPEngine(void)
     filter["result"][0]["Level"] = true;
     filter["result"][0]["Rain"] = true;
     filter["result"][0]["Type"] = true;
-    filter["result"][0]["Rain"] = true;
 
     total_data_lengh = 0;
 }
@@ -34,7 +33,7 @@ bool verify_ip(){
     return HTTPGETRequestWithReturn("/json.htm?type=command&param=getServerTime",NULL);
 }
 
-bool HTTPGETRequest(char * url2)
+bool HTTPGETRequest(const char * url2)
 {
     return HTTPGETRequestWithReturn(url2,NULL);
 }
@@ -60,11 +59,16 @@ bool HTTPGETRequestWithReturn(const char * url2, JsonDocument *doc, bool NeedFil
         if (httpCode != 200)
         {
              Serial.println(F("Failed to connect 2"));
+             client.end();
              return false;
         }
 
         //if no need data return
-        if (!doc) return true;
+        if (!doc)
+        {
+            client.end();
+            return true;
+        }
 
         DeserializationError err;
 
@@ -117,9 +121,6 @@ bool HTTPGETRequestWithReturn(const char * url2, JsonDocument *doc, bool NeedFil
         Serial.println(F("Failed to connect"));
         return false;
     }
-
-    return false;
-
 }
 
 

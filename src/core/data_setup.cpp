@@ -1,5 +1,5 @@
 #include <ArduinoJson.h>
-#include "../src/conf/global_config.h"
+#include "../conf/global_config.h"
 #include "../ui/http_setup.h"
 #include "../ui/panels/panel.h"
 #include "../ui/navigation.h"
@@ -64,8 +64,8 @@ void Init_data(void)
     {
         if (i < SIZEOF(global_config.ListDevices))
         {
-            if (i > 0) _ListDevice = _ListDevice + ",";
-            _ListDevice = _ListDevice + String(global_config.ListDevices[i]);
+            if (i > 0) _ListDevice += ",";
+            _ListDevice += String(global_config.ListDevices[i]);
 
             myDevices[i].type = TYPE_UNUSED;
             if (HttpInitDevice(&myDevices[i], global_config.ListDevices[i]))
@@ -172,16 +172,26 @@ void Update_device_data(JsonObject RJson2)
         data = Cleandata(myDevices[ID].type, JSondata);
     }
 
-    if (strcmp(data, myDevices[ID].data) != 0)
+    if (myDevices[ID].data && strcmp(data, myDevices[ID].data) != 0)
     {
         //Use dynamic array, but only 1 time
         if (strlen(data) >= myDevices[ID].lenData)
         {
             if (myDevices[ID].data) free(myDevices[ID].data);
             myDevices[ID].data = (char*)malloc(strlen(data) + 1);
+            if (!myDevices[ID].data) return; // malloc failed
             myDevices[ID].lenData = strlen(data);
         }
 
+        strncpy(myDevices[ID].data, data, myDevices[ID].lenData + 1);
+        NeedUpdate = true;
+    }
+    else if (!myDevices[ID].data)
+    {
+        // First update: allocate and store initial data
+        myDevices[ID].data = (char*)malloc(strlen(data) + 1);
+        if (!myDevices[ID].data) return; // malloc failed
+        myDevices[ID].lenData = strlen(data);
         strncpy(myDevices[ID].data, data, myDevices[ID].lenData + 1);
         NeedUpdate = true;
     }
@@ -268,14 +278,14 @@ int * GetGraphValue(int type, int idx, int *min, int *max)
 
         std::fill_n(tab, 24, 0);
 
-        double v; // value
-        short hour;
+        double v = 0.0; // value
+        short hour = 0;
         const char * c = NULL;
 
         // Value are not constant so can be evry 15 mn or 20 mn
         //int s = JS.size();
 
-        short j,k = 0;
+        short j = 0, k = 0;
         short actualhour = 0;
         short diff = 0;
 
@@ -382,6 +392,7 @@ bool HttpInitDevice(Device *d, int id)
     {
         if (d->name) free(d->name);
         d->name = (char*)malloc(strlen(i["Name"]) + 1);
+        if (!d->name) return false; // malloc failed
         strncpy(d->name, i["Name"],strlen(i["Name"]) + 1);
 
         const char* JSondata = NULL;
@@ -402,6 +413,7 @@ bool HttpInitDevice(Device *d, int id)
 
         if (d->ID) free(d->ID);
         d->ID = (char*)malloc(strlen(i["ID"]) + 1);
+        if (!d->ID) return false; // malloc failed
         strncpy(d->ID, i["ID"],strlen(i["ID"]) + 1);
 
         if (i["idx"].is<int>())
@@ -431,6 +443,7 @@ bool HttpInitDevice(Device *d, int id)
                 // Decoded string is always smaller, bytes = (string_length(encoded_string) − 814) / 1.37
                 // So we loose 30% of memory for nothing but don't need to re-alloc it.
                 d->levelname = (char*)malloc(strlen(i["LevelNames"]) + 1);
+                if (!d->levelname) return false; // malloc failed
 
                 unsigned int string_length = decode_base64((const unsigned char*)base64, (unsigned char *)d->levelname);
                 d->levelname[string_length] = '\0';
@@ -493,7 +506,7 @@ bool HttpInitDevice(Device *d, int id)
         {
             d->type = TYPE_COLOR;
         }
-        else if (type && strncmp(type, "Temp",4) == 0)
+        else if (strncmp(type, "Temp",4) == 0)
         {
             d->type = TYPE_TEMPERATURE;
         }
@@ -546,11 +559,11 @@ bool HttpInitDevice(Device *d, int id)
         if (image)
         {
             // Correction by image
-            if (image && strcmp(image,"WallSocket") == 0)
+            if (strcmp(image,"WallSocket") == 0)
             {
                 d->type = TYPE_PLUG;
             }
-            else if (image && strcmp(image,"Speaker") == 0)
+            else if (strcmp(image,"Speaker") == 0)
             {
                 d->type = TYPE_SPEAKER;
             }
@@ -584,6 +597,7 @@ bool HttpInitDevice(Device *d, int id)
         {
             if (d->data) free(d->data);
             d->data = (char*)malloc(strlen(data) + 1);
+            if (!d->data) return false; // malloc failed
             Serial.printf("Re-alloc from %d to %d\n", d->lenData, strlen(data));
             d->lenData = strlen(data);
         }
