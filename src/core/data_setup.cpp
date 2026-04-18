@@ -2,6 +2,7 @@
 #include "../src/conf/global_config.h"
 #include "../ui/http_setup.h"
 #include "../ui/panels/panel.h"
+#include "../ui/navigation.h"
 #include "ip_engine.h"
 #include "base64.hpp"
 #include "data_setup.h"
@@ -26,24 +27,31 @@ const static unsigned short TabP2[] = {72, 80, 34, // Page 1, 3* 3 icons
 
 void RefreshHomePage(void);
 
+
+
 char * Cleandata(unsigned short t, const char *origin, const char *bonus = nullptr) 
 {
     if (!origin) return TmpBuffer;
-
-    if (strncmp(origin, "Humidity ", 9) == 0) origin+=9;
-    strncpy(TmpBuffer, origin, 255);
+    
+    if (strncmp(origin, "Humidity ", 9) == 0) origin += 9;
 
     if (bonus)
     {
-        strncpy(TmpBuffer + strlen(origin), ";", 255 - strlen(origin));
-        strncpy(TmpBuffer + strlen(origin) + 1, bonus, 254 - strlen(origin));
+        snprintf(TmpBuffer, sizeof(TmpBuffer), "%s;%s", origin, bonus);
     }
-    if ((t == TYPE_SETPOINT) || (t == TYPE_THERMOSTAT))
+    else
     {
-        strncpy(TmpBuffer + strlen(origin) , "°C", 253 - strlen(origin));
+        snprintf(TmpBuffer, sizeof(TmpBuffer), "%s", origin);
     }
 
-    for (int i = 0; i<strlen(TmpBuffer); i++) { if ((TmpBuffer[i] == ';') || (TmpBuffer[i] == ',')) TmpBuffer[i] = '\n';}
+    if (t == TYPE_SETPOINT || t == TYPE_THERMOSTAT) {
+        strncat(TmpBuffer, "°C", sizeof(TmpBuffer) - strlen(TmpBuffer) - 1);
+    }
+
+    // Remplacement des séparateurs par des sauts de ligne
+    for (char *p = TmpBuffer; *p; p++) {
+        if (*p == ';' || *p == ',') *p = '\n';
+    }
 
     return TmpBuffer;
 }
@@ -155,7 +163,7 @@ void Update_device_data(JsonObject RJson2)
     }
     else if (myDevices[ID].type == TYPE_THERMOSTAT)
     {
-        char *t = (char*)malloc(10);
+        char t[10];
         lv_snprintf(t, 10, "%.1f", RJson2["Temp"].as<float>());
         data = Cleandata(myDevices[ID].type, t);
     }
@@ -194,7 +202,15 @@ void Update_device_data(JsonObject RJson2)
         }
         else
         {
-            RefreshHomePage();
+            // The device is actully displayed ?
+            if ((GetActivePanel() == DEVICE_PANEL) && (GetSelectedDeviceIdx() == JSonidx))
+            {
+                RefreshDevicePanel();
+            }
+            else
+            {
+                RefreshHomePage();
+            }
         }
     }
 
@@ -304,6 +320,8 @@ int * GetGraphValue(int type, int idx, int *min, int *max)
                 case TYPE_METEO:
                     v = i["mm"];
                     break;
+                default:
+                    v = 0;
             }
 
             // Because of decimal values
@@ -324,7 +342,7 @@ int * GetGraphValue(int type, int idx, int *min, int *max)
         }
 
         // Scale calcul
-        for (k = 0; k < 23; k++)
+        for (k = 0; k < 24; k++)
         {
             if (tab[k] > *max) *max = tab[k];
             if (tab[k] < *min) *min = tab[k];
@@ -386,7 +404,15 @@ bool HttpInitDevice(Device *d, int id)
         d->ID = (char*)malloc(strlen(i["ID"]) + 1);
         strncpy(d->ID, i["ID"],strlen(i["ID"]) + 1);
 
-        d->idx = i["idx"];
+        if (i["idx"].is<int>())
+        {
+            d->idx = i["idx"].as<int>();
+        }
+        else if (i["idx"].is<const char*>())
+        {
+            d->idx = atoi(i["idx"].as<const char*>());
+        }
+
         d->level = i["Level"];
 
         //Set a defaut value
@@ -424,6 +450,10 @@ bool HttpInitDevice(Device *d, int id)
                 if (strcmp(switchtype,"Dimmer") == 0)
                 {
                     d->type = TYPE_DIMMER;
+
+                    // some device don't have 0/100 values
+                    if (i["MaxDimLevel"].is<double>()) d->maxlevel = i["MaxDimLevel"];
+
                 }
                 else if (strcmp(switchtype,"On/Off") == 0)
                 {
@@ -433,7 +463,8 @@ bool HttpInitDevice(Device *d, int id)
                 {
                     d->type = TYPE_PUSH;
                 }
-                else if ((strcmp(switchtype,"Venetian Blinds EU") == 0) || (strcmp(switchtype,"Venetian Blinds US") == 0) || (strcmp(switchtype,"Blinds Percentage") == 0))
+                else if ((strcmp(switchtype,"Venetian Blinds EU") == 0) || (strcmp(switchtype,"Venetian Blinds US") == 0)
+                 || (strcmp(switchtype,"Blinds Percentage") == 0) || (strcmp(switchtype,"Blinds % + Stop") == 0))
                 {
                     d->type = TYPE_BLINDS;
                 }
@@ -447,6 +478,16 @@ bool HttpInitDevice(Device *d, int id)
         else if (strncmp(type, "Lighting", 8) == 0)
         {
             d->type = TYPE_LIGHT;
+            
+            const char* switchtype = i["SwitchType"];
+            if (strcmp(switchtype,"Dimmer") == 0)
+            {
+                d->type = TYPE_DIMMER;
+
+                // some device don't have 0/100 values
+                if (i["MaxDimLevel"].is<double>()) d->maxlevel = i["MaxDimLevel"];
+
+            }
         }
         else if (strcmp(type, "Color Switch") == 0)
         {
@@ -468,7 +509,7 @@ bool HttpInitDevice(Device *d, int id)
         {
             d->type = TYPE_POWER;
         }
-        else if (strcmp(type, "P1 Smart Meter") == 0)
+        else if ((strcmp(type, "P1 Smart Meter") == 0) || (strcmp(type, "RFXMeter") == 0))
         {
             d->type = TYPE_CONSUMPTION;
         }
@@ -529,7 +570,7 @@ bool HttpInitDevice(Device *d, int id)
         }
         else if (d->type == TYPE_THERMOSTAT)
         {
-            char *t = (char*)malloc(10);
+            char t[10];
             lv_snprintf(t, 10, "%.1f", i["Temp"].as<float>());
             data = Cleandata(d->type, t);
         }
@@ -546,7 +587,8 @@ bool HttpInitDevice(Device *d, int id)
             Serial.printf("Re-alloc from %d to %d\n", d->lenData, strlen(data));
             d->lenData = strlen(data);
         }
-        strncpy(d->data, data, d->lenData + 1);
+
+        if (d->data) strncpy(d->data, data, d->lenData + 1);
     }
 
     return true;

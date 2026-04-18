@@ -4,6 +4,8 @@
  * Opts: --bpp 4 --size 12 --no-compress --font Montserrat-Regular.ttf --symbols €°µ¥£²³ --range 32-126 --format lvgl -o Montserrat_12.c
  ******************************************************************************/
 
+ #if FONT_TO_USE == 1
+
 #ifdef LV_LVGL_H_INCLUDE_SIMPLE
 #include "lvgl.h"
 #else
@@ -766,3 +768,4 @@ lv_font_t Mpntserrat_12 = {
 
 #endif /*#if MONTSERRAT_12*/
 
+#endif

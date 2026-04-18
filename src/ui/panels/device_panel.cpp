@@ -14,7 +14,7 @@ static lv_obj_t * arc_TH; // Arc for thermostat
 
 //static Device SelectedDevice; // The selected one
 static Device SpecialDevice; // structure for an actual one that is not on HP
-static Device *SelectedDevice; // The selected one
+static Device *SelectedDevice = nullptr; // The selected one
 
 extern lv_style_t style_shadow;
 extern lv_color_t background;
@@ -60,8 +60,10 @@ static void slider_released_event_cb(lv_event_t * e)
     lv_obj_t * slider = lv_event_get_target(e);
     lv_event_code_t code = lv_event_get_code(e);
 
+    unsigned short lev = (int)lv_slider_get_value(slider) * SelectedDevice->maxlevel / 100;
+
     char buff[256] = {};
-    lv_snprintf(buff, 256, "/json.htm?type=command&param=switchlight&idx=%d&switchcmd=Set%%20Level&level=%d", SelectedDevice->idx, (int)lv_slider_get_value(slider));
+    lv_snprintf(buff, 256, "/json.htm?type=command&param=switchlight&idx=%d&switchcmd=Set%%20Level&level=%d", SelectedDevice->idx, lev);
     HTTPGETRequest(buff);
 
 }
@@ -170,6 +172,19 @@ static void hist_chart_event_cb(lv_event_t * e)
         lv_snprintf(dsc->text, dsc->text_length, "%.1f", (float)dsc->value / coef);
     }
 }
+
+
+/**************************************************************************************/
+
+int GetSelectedDeviceIdx(void)
+{
+    if (SelectedDevice)
+    {
+        return SelectedDevice->idx;
+    }
+    return 0;
+}
+
 void Select_deviceMemorised(void *device)
 {
     //This one is already memorised so just pick it
@@ -294,6 +309,8 @@ const lv_img_dsc_t *Geticon(int type)
     return &unknown35x35;
 }
 
+/**************************************************************************************/
+
 void device_panel_init(lv_obj_t* panel)
 {
 
@@ -367,12 +384,12 @@ void device_panel_init(lv_obj_t* panel)
     lv_obj_set_style_img_recolor(img, color, 0);
     //Label
     label = lv_label_create(GridTop);
-    lv_obj_set_style_text_font(label, &font1, 0);
+    lv_obj_set_style_text_font(label, &big_font_bold, 0);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP); 
     lv_label_set_text(label, SelectedDevice->name);
     //lv_obj_align(label, LV_ALIGN_RIGHT_MID, 0, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_set_size(label, TFT_WIDTH - 35 - 40, 30);
+    lv_obj_set_size(label, LCD_WIDTH - 35 - 40, 30);
     lv_obj_align_to(label, img,  LV_ALIGN_OUT_RIGHT_MID, 0, 0);
 
     //Options
@@ -381,13 +398,19 @@ void device_panel_init(lv_obj_t* panel)
     if ((SelectedDevice->type == TYPE_SWITCH) || (SelectedDevice->type == TYPE_DIMMER)
      || (SelectedDevice->type == TYPE_PLUG) || (SelectedDevice->type == TYPE_COLOR) || (SelectedDevice->type == TYPE_LIGHT))
     {
+        //lv_obj_add_flag(GridSmall, LV_OBJ_FLAG_HIDDEN);
+
         lv_obj_t * sw = lv_switch_create(GridSmall);
         lv_obj_align(sw, LV_ALIGN_CENTER, 0, 0);
+
+        //Disable flickering
+        //lv_obj_set_style_anim_time(sw, -1, LV_PART_MAIN); // Not working
 
         if (strcmp(SelectedDevice->data, "On") == 0)
         {
             lv_obj_add_state(sw, LV_STATE_CHECKED);
         }
+        //lv_obj_clear_flag(GridSmall, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_event_cb(sw, switch_event_handler, LV_EVENT_ALL, NULL);
 
     }
@@ -470,7 +493,7 @@ void device_panel_init(lv_obj_t* panel)
     {
 
         lv_obj_t * slider = lv_slider_create(GridBig);
-        lv_slider_set_value(slider, SelectedDevice->level, LV_ANIM_ON);
+        lv_slider_set_value(slider, SelectedDevice->level, LV_ANIM_OFF);
         lv_obj_set_width(slider, lv_pct(80));
         lv_slider_set_range(slider, 0, 100);
         lv_obj_center(slider);
@@ -488,7 +511,7 @@ void device_panel_init(lv_obj_t* panel)
     {
         /*Create a slider*/
         lv_obj_t * slider = lv_slider_create(GridBig);
-        lv_slider_set_value(slider, SelectedDevice->level, LV_ANIM_ON);
+        lv_slider_set_value(slider, SelectedDevice->level, LV_ANIM_OFF);
         lv_obj_set_size(slider, 10, lv_pct(80));
         lv_slider_set_range(slider, 0, 100);
         lv_obj_add_event_cb(slider, slider_changed_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
@@ -535,7 +558,7 @@ void device_panel_init(lv_obj_t* panel)
         label = lv_label_create(GridBig);
         lv_obj_set_size(label, lv_pct(100), lv_pct(80)); 
         lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
-        lv_obj_set_style_text_font(label, &font1, 0);
+        lv_obj_set_style_text_font(label, &big_font_bold, 0);
         lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
         lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
         lv_obj_set_style_text_color(label, color, 0);
@@ -618,7 +641,7 @@ void device_panel_init(lv_obj_t* panel)
         lv_obj_set_size(obj, LV_PCT(80), LV_PCT(30));
         label = lv_label_create(obj);
         //lv_obj_set_style_text_color(label, color, 0); // no action ???
-        lv_obj_set_style_text_font(label, &font1, 0);
+        lv_obj_set_style_text_font(label, &big_font_bold, 0);
         lv_label_set_text_static(label, "+");
         lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
         lv_obj_set_pos(obj, 0, 0);
@@ -627,7 +650,7 @@ void device_panel_init(lv_obj_t* panel)
         obj = lv_btn_create(GridSmall);
         lv_obj_set_size(obj, LV_PCT(80), LV_PCT(30));
         label = lv_label_create(obj);
-        lv_obj_set_style_text_font(label, &font1, 0);
+        lv_obj_set_style_text_font(label, &big_font_bold, 0);
         lv_label_set_text_static(label, "-");
         lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
         lv_obj_set_pos(obj, 0, LV_PCT(33));
@@ -636,7 +659,7 @@ void device_panel_init(lv_obj_t* panel)
         obj = lv_btn_create(GridSmall);
         lv_obj_set_size(obj, LV_PCT(80), LV_PCT(30));
         label = lv_label_create(obj);
-        lv_obj_set_style_text_font(label, &font1, 0);
+        lv_obj_set_style_text_font(label, &big_font_bold, 0);
         lv_label_set_text_static(label, "Set");
         lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
         lv_obj_set_pos(obj, 0, LV_PCT(66));
@@ -651,7 +674,7 @@ void device_panel_init(lv_obj_t* panel)
     {
 
         label = lv_label_create(GridSmall);
-        lv_obj_set_style_text_font(label, &font1, 0);
+        lv_obj_set_style_text_font(label, &big_font_bold, 0);
         lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
         lv_obj_set_size(label, lv_pct(100), lv_pct(100));
         lv_label_set_text(label, SelectedDevice->data);
@@ -687,7 +710,7 @@ void device_panel_init(lv_obj_t* panel)
 #else
             lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 3, 2, 4, 1, true, 35);
 #endif
-            lv_obj_set_style_text_font(chart, &font2, 0);
+            lv_obj_set_style_text_font(chart, &small_font, 0);
 
             Serial.printf("Making chart with Range %d > %d\n",min , max);
 

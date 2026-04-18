@@ -96,6 +96,9 @@ static lv_disp_draw_buf_t draw_buf;
     #ifdef ESP32_ZX7D00CE01S
     #include "../drivers/esp32-ZX7D00CE01S.h"
     #endif
+    #ifdef ESP32_S3TOUCHLCD7
+    #include "../drivers/esp32-S3TOUCHLCD7.h"
+    #endif
 
 #endif
 
@@ -214,7 +217,7 @@ void _TC::init(void)
     Wire.begin(TOUCH_SDA, TOUCH_SCL, (uint32_t)I2C_TOUCH_FREQUENCY);
     delay(500);
     touch.setHandler(GT911_setXY); // not used
-    GTInfo* info;
+    GTInfo* info = nullptr;
 
     if(touch.begin(TOUCH_IRQ, TOUCH_RST, I2C_TOUCH_ADDRESS))
     {
@@ -222,7 +225,7 @@ void _TC::init(void)
     }
 
 #if TOUCH_IRQ == -1
-    if(info->xResolution == 0 || info->yResolution == 0)
+    if(info && info->xResolution == 0 || info->yResolution == 0)
     {
         // Probe both addresses if IRQ is not connected
         for(uint8_t i = 0; i < 4; i++)
@@ -230,7 +233,7 @@ void _TC::init(void)
             if(touch.begin(TOUCH_IRQ, TOUCH_RST, i < 2 ? 0x5d : 0x14))
             {
                 info = touch.readInfo();
-                if(info->xResolution > 0 && info->yResolution > 0) break;
+                if(info && info->xResolution > 0 && info->yResolution > 0) break;
             }
         }
     }
@@ -248,8 +251,8 @@ void _TC::init(void)
     // Do it again ?
     Wire.begin(TOUCH_SDA, TOUCH_SCL, (uint32_t)I2C_TOUCH_FREQUENCY);
 
-    Serial.println("Check ACK on addr request on 0x");
-    Serial.println(touch.i2cAddr, HEX);
+    Serial.print("Check ACK on addr request on 0x");
+    Serial.print(touch.i2cAddr, HEX);
 
     Wire.beginTransmission(touch.i2cAddr);  
     int error = Wire.endTransmission();
@@ -333,8 +336,8 @@ void touchscreen_calibrate(bool force)
 
     while (touchscreen.touched())
         ;
-    tft.drawFastHLine(TFT_WIDTH-20, TFT_HEIGHT-10, 20, TFT_WHITE);
-    tft.drawFastVLine(TFT_WIDTH-10, TFT_HEIGHT-20, 20, TFT_WHITE);
+    tft.drawFastHLine(LCD_WIDTH-20, LCD_HEIGHT-10, 20, TFT_WHITE);
+    tft.drawFastVLine(LCD_WIDTH-10, LCD_HEIGHT-20, 20, TFT_WHITE);
 
     while (!touchscreen.touched())
         ;
@@ -342,11 +345,11 @@ void touchscreen_calibrate(bool force)
     p = touchscreen.getPoint();
     x2 = p.x;
     y2 = p.y;
-    tft.drawFastHLine(TFT_WIDTH-20, TFT_HEIGHT-10, 20, TFT_BLACK);
-    tft.drawFastVLine(TFT_WIDTH-10, TFT_HEIGHT-20, 20, TFT_BLACK);
+    tft.drawFastHLine(LCD_WIDTH-20, LCD_HEIGHT-10, 20, TFT_BLACK);
+    tft.drawFastVLine(LCD_WIDTH-10, LCD_HEIGHT-20, 20, TFT_BLACK);
 
-    int16_t xDist = TFT_WIDTH - 40;
-    int16_t yDist = TFT_HEIGHT - 40;
+    int16_t xDist = LCD_WIDTH - 40;
+    int16_t yDist = LCD_HEIGHT - 40;
 
     global_config.screenCalXMult = (float)xDist / (float)(x2 - x1);
     global_config.screenCalXOffset = 20.0 - ((float)x1 * global_config.screenCalXMult);
@@ -419,6 +422,7 @@ void screen_timer_sleep(lv_timer_t *timer)
     //value from sensor is 0(light)-4096(dark) so invert value to 0(dark)-4096(light) and divide with 16,06 to get 0-255
     int b = (4096 -(cds))/16.06; 
     if (b>= global_config.brightness) b = global_config.brightness; //if value b is higher than config settings use config settings
+    if (b < 0) b = 0; // For negative values
     if (b< 10) b = 10; //if value b is lower than 10 set 10 as lowest brightness
     Serial.printf("Brightness value: %d\n", b);
 
@@ -459,7 +463,7 @@ void screen_timer_period(uint32_t period)
 
 void set_screen_timer_period()
 {
-    screen_timer_period(global_config.screenTimeout * 1000 * 60);
+    screen_timer_period((uint32_t)global_config.screenTimeout * 1000 * 60);
     screen_timer_start();
 }
 
@@ -609,7 +613,14 @@ void screen_setup()
     if (!buf)
     {
         Serial.println(F("LVGL disp_draw_buf allocate failed!"));
-        return;
+        // Rapid blink to show the error visualy
+        while (true)
+        {
+            screen_setBrightness(255);
+            delay(200);
+            screen_setBrightness(0);
+            delay(200);
+        }
     }
 
     lv_disp_draw_buf_init(&draw_buf, buf, NULL, VDBsize);
@@ -617,8 +628,8 @@ void screen_setup()
     /*Initialize the display*/
     static lv_disp_drv_t disp_drv;
     lv_disp_drv_init(&disp_drv);
-    disp_drv.hor_res = TFT_WIDTH;
-    disp_drv.ver_res = TFT_HEIGHT;
+    disp_drv.hor_res = LCD_WIDTH;
+    disp_drv.ver_res = LCD_HEIGHT;
     disp_drv.flush_cb = screen_lv_flush;
     disp_drv.draw_buf = &draw_buf;
     lv_disp_drv_register(&disp_drv);

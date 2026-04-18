@@ -25,7 +25,8 @@ static void ta_event_cb(lv_event_t * e) {
     }
     else if (code == LV_EVENT_READY) 
     {
-        strcpy(global_config.ServerHost, lv_textarea_get_text(ipEntry));
+        strncpy(global_config.ServerHost, lv_textarea_get_text(ipEntry), sizeof(global_config.ServerHost) - 1);
+        global_config.ServerHost[sizeof(global_config.ServerHost) - 1] = '\0';
         global_config.ServerPort = atoi(lv_textarea_get_text(portEntry));
 
         if (verify_ip())
@@ -77,13 +78,13 @@ void WS_init_inner(){
     lv_textarea_set_text(ipEntry, "");
     lv_obj_align(ipEntry, LV_ALIGN_TOP_LEFT, 10, 40);
     lv_obj_add_event_cb(ipEntry, ta_event_cb, LV_EVENT_ALL, keyboard);
-    lv_obj_set_size(ipEntry, TFT_WIDTH - 20 - 100, 60);
+    lv_obj_set_size(ipEntry, LCD_WIDTH - 20 - 100, 60);
 
     portEntry = lv_textarea_create(lv_scr_act());
     lv_textarea_set_one_line(portEntry, true);
     lv_textarea_set_max_length(portEntry, 5);
     lv_textarea_set_text(portEntry, "8080");
-    lv_obj_align(portEntry, LV_ALIGN_TOP_LEFT, TFT_WIDTH - 20 - 80, 40);
+    lv_obj_align(portEntry, LV_ALIGN_TOP_LEFT, LCD_WIDTH - 20 - 80, 40);
     lv_obj_add_event_cb(portEntry, ta_event_cb, LV_EVENT_ALL, keyboard);
     lv_obj_set_size(portEntry, 90, 60);
     
@@ -91,8 +92,8 @@ void WS_init_inner(){
     lv_keyboard_set_textarea(keyboard, ipEntry);
 }
 
-long last_data_update_ip = -10000;
-const long data_update_interval_ip = 10000;
+long last_data_update_ip = 0;
+#define DATA_UPDATE_INTERVAL_IP 10000
 int retry_count = 0;
 
 void WS_init(void)
@@ -116,7 +117,7 @@ void WS_init(void)
         lv_timer_handler();
         lv_task_handler();
     
-        if (!WS_Running && (millis() - last_data_update_ip) > data_update_interval_ip)
+        if (!WS_Running() && ((millis() - last_data_update_ip) > DATA_UPDATE_INTERVAL_IP))
         {
 
             Serial.println(F("Waiting"));

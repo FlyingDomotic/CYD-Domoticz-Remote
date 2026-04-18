@@ -99,7 +99,7 @@ void tools_panel_init(lv_obj_t* panel)
     lv_snprintf(Text + strlen(Text), 180, "+ Total data by WS : %d ko", total_WS_lenght());
 
     label_tool = lv_label_create(cont2);
-    lv_obj_set_style_text_font(label_tool, &font3, 0);
+    lv_obj_set_style_text_font(label_tool, &medium_font, 0);
     lv_label_set_long_mode(label_tool, LV_LABEL_LONG_WRAP);
     lv_label_set_text(label_tool, Text);
     lv_obj_set_size(label_tool, LV_PCT(100), LV_PCT(100));
