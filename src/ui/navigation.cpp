@@ -3,7 +3,6 @@
 #include "panels/panel.h"
 #include "../core/data_setup.h"
 #include "../core/ip_engine.h"
-#include "../core/data_setup.h"
 
 static lv_obj_t * tv;
 static int actived_panel = 0;
@@ -37,6 +36,14 @@ void RefreshHomePage(void)
     }
 }
 
+void RefreshDevicePanel(void)
+{
+    if (actived_panel == DEVICE_PANEL)
+    {                           
+        navigation_screen(DEVICE_PANEL);
+    }
+}
+
 #ifndef NO_GROUP_PAGE
 void RefreshScenePage(void)
 {
@@ -46,8 +53,6 @@ void RefreshScenePage(void)
     }
 }
 #endif
-
-static int swipe = 0;
 
 
 
@@ -59,7 +64,7 @@ void navigation_screen(unsigned char active_panel)
     lv_obj_clean(lv_scr_act());
 
     lv_obj_t * panel = lv_obj_create(lv_scr_act());
-    lv_obj_set_size(panel, TFT_WIDTH, TFT_HEIGHT);
+    lv_obj_set_size(panel, LCD_WIDTH, LCD_HEIGHT);
     lv_obj_align(panel, LV_ALIGN_TOP_RIGHT, 0, 0);
     lv_obj_set_style_border_width(panel, 0, 0);
     lv_obj_set_style_bg_opa(panel, LV_OPA_TRANSP, 0);
@@ -116,6 +121,10 @@ void navigation_screen(unsigned char active_panel)
             device_panel_init(panel);
             break;
         case SETTING_PANEL:// Settings
+            settings_panel_init(panel);
+            break;
+
+        default:
             settings_panel_init(panel);
             break;
     }

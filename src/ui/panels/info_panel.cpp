@@ -180,7 +180,7 @@ void info_panel_init(lv_obj_t* panel)
 
     table = lv_table_create(cont);
 
-    lv_obj_set_style_text_font(table, &font3, 0);
+    lv_obj_set_style_text_font(table, &medium_font, 0);
     lv_obj_set_style_pad_all(table, TABLEPAD, LV_PART_ITEMS);
     lv_obj_set_style_border_width(table, 1, LV_PART_ITEMS);
     lv_obj_update_layout(cont);   /*Be sure the sizes are recalculated*/

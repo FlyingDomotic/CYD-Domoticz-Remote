@@ -57,7 +57,7 @@ For the hardware part (according to your device) mains settings are in the file 
 	-DFASTCLIC # Enable 1 clic action for some widget
 	#-DNO_INFO_PAGE # Disable the Info panel
 	#-DNO_GROUP_PAGE # Disable the Group/scene panel
-	#-DCUSTOM_FONT
+	#-DFONT_TO_USE=1 # 1=Standard 2=Custom 3=French, See fonts paragraph
 	#-DAUTO_BRIGHTNESS
 	#-DLIGHTWS # Only possible for version > 16088, decrease WS requests.
 	#-DPUSHOTA # To enable PUSH OTA (Don't enable both OTA)
@@ -81,6 +81,11 @@ There is 2 options for OTA, PUSHOTA and PULLOTA you can enable one of them or no
 - esp32-2432S024R
 - esp32-8048S050C
 - esp32-JC2432W328
+- esp32-S3TOUCHLCD7 (WaveShare ESP32S3 Touch LCD 7)
+
+## Fonts
+
+
 
 ## Actuals issues   
 - Memory ^^, lot of feature are still in Beta test. For exemple Domoticz JSON are too big to be handled by the device, it cause problem for chart for exemple.

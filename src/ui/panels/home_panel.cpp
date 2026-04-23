@@ -14,8 +14,8 @@ extern lv_style_t style_pressed;
 #define TOTAL_OFFSET_X 10
 #define TOTAL_OFFSET_Y 10
 //Calculate widgets size
-int Size_w = int(TFT_WIDTH/TOTAL_ICONX) -  TOTAL_OFFSET_X;
-int Size_h = int(TFT_HEIGHT/TOTAL_ICONY) - TOTAL_OFFSET_Y;
+int Size_w = int(LCD_WIDTH/TOTAL_ICONX) -  TOTAL_OFFSET_X;
+int Size_h = int(LCD_HEIGHT/TOTAL_ICONY) - TOTAL_OFFSET_Y;
 //Icon size
 //int Size_icon = 35;
 
@@ -89,7 +89,7 @@ static void Widget_button(lv_obj_t* panel, char* desc, int x, int y, int w, int 
     {
         lv_obj_t * label2 = lv_label_create(Button_icon);               /*Add a label to the button*/
         //lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);             /*Break the long lines*/
-        lv_obj_set_style_text_font(label2, &font1, 0);
+        lv_obj_set_style_text_font(label2, &big_font_bold, 0);
         lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_CENTER, 0);
         lv_obj_set_style_text_color(label2, color, 0);
 
@@ -143,7 +143,7 @@ static void Widget_button(lv_obj_t* panel, char* desc, int x, int y, int w, int 
     /*Create description*/
     lv_obj_t * label2 = lv_label_create(Button_icon);               /*Add a label to the button*/
     lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);             /*Break the long lines*/
-    lv_obj_set_style_text_font(label2, &font2, 0);
+    lv_obj_set_style_text_font(label2, &small_font, 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_CENTER, 0);
     //lv_label_set_recolor(label2, true);                           /*Activate coloring*/
     lv_label_set_text(label2, desc);                                /*Set the labels text*/
@@ -181,7 +181,7 @@ static void Widget_sensor(lv_obj_t* panel, char* desc, char* value, int x, int y
      /*Create Value*/
      // Does _local_ is working here ?
     lv_obj_t * label = lv_label_create(Button_icon);
-    lv_obj_set_style_text_font(label, &font1, 0);
+    lv_obj_set_style_text_font(label, &big_font_bold, 0);
     lv_obj_set_style_text_color(label, color, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_RIGHT, 0);
 #if DEVICE_SIZE == 1
@@ -199,7 +199,7 @@ static void Widget_sensor(lv_obj_t* panel, char* desc, char* value, int x, int y
     lv_obj_t * label2 = lv_label_create(Button_icon);
     lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_set_style_text_font(label2, &font2, 0);
+    lv_obj_set_style_text_font(label2, &small_font, 0);
     lv_label_set_text(label2, desc);
     //lv_obj_set_size(label2, Size_w-10, 30);
     lv_obj_set_width(label2, Size_w);
@@ -244,7 +244,7 @@ static void Widget_button_group(lv_obj_t* panel, char* desc, int x, int y, int w
     /*Create description*/
     lv_obj_t * label2 = lv_label_create(Button_icon);               /*Add a label to the button*/
     lv_label_set_long_mode(label2, LV_LABEL_LONG_WRAP);             /*Break the long lines*/
-    lv_obj_set_style_text_font(label2, &font2, 0);
+    lv_obj_set_style_text_font(label2, &small_font, 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_CENTER, 0);
     lv_label_set_text(label2, desc);                                /*Set the labels text*/
     lv_obj_set_width(label2, Size_w);
@@ -343,7 +343,7 @@ void group_panel_init(lv_obj_t* panel)
         return;
     }
     
-    short x,y = 0;
+    short x = 0, y = 0;
     short cx,cy;
     int idx = 0;
     const char *name;

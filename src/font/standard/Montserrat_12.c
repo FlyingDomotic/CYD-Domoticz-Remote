@@ -4,6 +4,8 @@
  * Opts: --bpp 4 --size 12 --no-compress --font Montserrat-Regular.ttf --symbols €°µ¥£²³ --range 32-126 --format lvgl -o Montserrat_12.c
  ******************************************************************************/
 
+ #if FONT_TO_USE == 1
+
 #ifdef LV_LVGL_H_INCLUDE_SIMPLE
 #include "lvgl.h"
 #else
@@ -742,7 +744,7 @@ extern const lv_font_t Montserrat_12;
 #if LVGL_VERSION_MAJOR >= 8
 const lv_font_t Montserrat_12 = {
 #else
-lv_font_t Mpntserrat_12 = {
+lv_font_t Montserrat_12 = {
 #endif
     .get_glyph_dsc = lv_font_get_glyph_dsc_fmt_txt,    /*Function pointer to get glyph's data*/
     .get_glyph_bitmap = lv_font_get_bitmap_fmt_txt,    /*Function pointer to get glyph's bitmap*/
@@ -766,3 +768,4 @@ lv_font_t Mpntserrat_12 = {
 
 #endif /*#if MONTSERRAT_12*/
 
+#endif
