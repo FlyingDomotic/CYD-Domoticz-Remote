@@ -33,27 +33,19 @@ const lv_img_dsc_t *Geticon(int type);
 
     #if FONT_TO_USE == 2
         // Custom
-        LV_FONT_DECLARE(Montserrat_10_user)
         const lv_font_t small_font = Montserrat_10_user;
-        LV_FONT_DECLARE(Montserrat_12_user)
         const lv_font_t medium_font = Montserrat_12_user;
-        LV_FONT_DECLARE(Montserrat_Bold_14_user)
         const lv_font_t big_font_bold = Montserrat_Bold_14_user;
     #elif FONT_TO_USE == 3
         //French
-        LV_FONT_DECLARE(Montserrat_10_custom)
         const lv_font_t small_font = Montserrat_10_custom;
-        LV_FONT_DECLARE(Montserrat_12_custom)
         const lv_font_t medium_font = Montserrat_12_custom;
-        LV_FONT_DECLARE(Montserrat_bold_14_custom)
-        const lv_font_t big_font_bold = Montserrat_bold_14_custom;
+        const lv_font_t big_font_bold = Montserrat_Bold_14_custom;
     #else
         // Native
         const lv_font_t small_font = lv_font_montserrat_10;
         //Custom
-        LV_FONT_DECLARE(Montserrat_12)
         const lv_font_t medium_font = Montserrat_12;
-        LV_FONT_DECLARE(Montserrat_Bold_14)
         const lv_font_t big_font_bold = Montserrat_Bold_14;
     #endif
 
@@ -62,27 +54,19 @@ const lv_img_dsc_t *Geticon(int type);
 
     #if FONT_TO_USE == 2
         //Custom
-        LV_FONT_DECLARE(Montserrat_14_user)
         const lv_font_t small_font = Montserrat_14_user;
-        LV_FONT_DECLARE(Montserrat_16_user)
         const lv_font_t medium_font = Montserrat_16_user;
-        LV_FONT_DECLARE(Montserrat_Bold_18_user)
         const lv_font_t big_font_bold = Montserrat_Bold_18_user;
     #elif FONT_TO_USE == 3
         //French
-        LV_FONT_DECLARE(Montserrat_14_custom)
         const lv_font_t small_font = Montserrat_14_custom;
-        LV_FONT_DECLARE(Montserrat_16_custom)
         const lv_font_t medium_font = Montserrat_16_custom;
-        LV_FONT_DECLARE(Montserrat_Bold_18_custom)
         const lv_font_t big_font_bold = Montserrat_Bold_18_custom;
     #else
         // Native
         const lv_font_t small_font = lv_font_montserrat_14;
         //Custom
-        LV_FONT_DECLARE(Montserrat_16)
         const lv_font_t medium_font = Montserrat_16;
-        LV_FONT_DECLARE(Montserrat_Bold_18)
         const lv_font_t big_font_bold = Montserrat_Bold_18;
     #endif
 
