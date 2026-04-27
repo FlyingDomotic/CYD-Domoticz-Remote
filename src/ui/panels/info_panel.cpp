@@ -36,7 +36,7 @@ static void TV_btn_event_handler(lv_event_t * e) {
     char buff[256] = {};
 
 #ifdef OLD_DOMOTICZ
-    lv_snprintf(buff, 256, "/json.htm?type=devices&filter=%s&used=true&order=Name",lv_label_get_text(label));
+    lv_snprintf(buff, 256, "/json.htm?type=devices&filter=%s&used=true&order=Name",text2);
 #else
     //lv_snprintf(buff, 256, "/json.htm?type=command&param=getdevices&used=true&displayhidden=1"); // TO TEST, need to be removed
     lv_snprintf(buff, 256, "/json.htm?type=command&param=getdevices&filter=%s&used=true&order=Name",text2);
