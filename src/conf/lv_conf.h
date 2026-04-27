@@ -327,14 +327,14 @@
  *https://fonts.google.com/specimen/Montserrat*/
 
 #define LV_FONT_MONTSERRAT_8  0
-//#define LV_FONT_MONTSERRAT_10 0
-//#define LV_FONT_MONTSERRAT_12 0
-//#define LV_FONT_MONTSERRAT_14 0
-//#define LV_FONT_MONTSERRAT_16 0
-//#define LV_FONT_MONTSERRAT_18 0
-#define LV_FONT_MONTSERRAT_20 1
-#define LV_FONT_MONTSERRAT_22 1
-#define LV_FONT_MONTSERRAT_24 1
+#define LV_FONT_MONTSERRAT_10 0
+#define LV_FONT_MONTSERRAT_12 0
+#define LV_FONT_MONTSERRAT_14 0
+#define LV_FONT_MONTSERRAT_16 0
+#define LV_FONT_MONTSERRAT_18 0
+#define LV_FONT_MONTSERRAT_20 0
+#define LV_FONT_MONTSERRAT_22 0
+#define LV_FONT_MONTSERRAT_24 0
 #define LV_FONT_MONTSERRAT_26 0
 #define LV_FONT_MONTSERRAT_28 0
 #define LV_FONT_MONTSERRAT_30 0
@@ -358,6 +358,22 @@
 #define LV_FONT_UNSCII_8  0
 #define LV_FONT_UNSCII_16 0
 
+/* Don't compile user fonts */
+#define MONTSERRAT_10_CUSTOM 0
+#define MONTSERRAT_12_CUSTOM 0
+#define MONTSERRAT_14_CUSTOM 0
+#define MONTSERRAT_16_CUSTOM 0
+#define MONTSERRAT_BOLD_14_CUSTOM 0
+#define MONTSERRAT_BOLD_18_CUSTOM 0
+
+/* Don't compile custom fonts */
+#define MONTSERRAT_10_CUSTOM 0
+#define MONTSERRAT_12_CUSTOM 0
+#define MONTSERRAT_14_CUSTOM 0
+#define MONTSERRAT_16_CUSTOM 0
+#define MONTSERRAT_BOLD_14_CUSTOM 0
+#define MONTSERRAT_BOLD_18_CUSTOM 0
+
 /*Optionally declare custom fonts here.
  *You can use these fonts as default font too and they will be available globally.
  *E.g. #define LV_FONT_CUSTOM_DECLARE   LV_FONT_DECLARE(my_font_1) LV_FONT_DECLARE(my_font_2)*/
@@ -365,43 +381,55 @@
  /*Always set a default font*/
 
 #if FONT_TO_USE == 2
-    #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(Montserrat_14_user)
-
     #if DEVICE_SIZE == 1
-        #define LV_FONT_DEFAULT &Montserrat_14_user
+        #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(Montserrat_10_user) LV_FONT_DECLARE(Montserrat_12_user) LV_FONT_DECLARE(Montserrat_Bold_14_user)
+        #undef MONTSERRAT_10_USER
+        #undef MONTSERRAT_12_USER
+        #undef MONTSERRAT_14_USER
+        #define LV_FONT_DEFAULT &Montserrat_Bold_14_user
     #else
-        #define LV_FONT_DEFAULT &Montserrat_18_user
+        #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(Montserrat_14_user) LV_FONT_DECLARE(Montserrat_16_user) LV_FONT_DECLARE(Montserrat_Bold_18_user)
+        #undef MONTSERRAT_14_USER
+        #undef MONTSERRAT_16_USER
+        #undef MONTSERRAT_BOLD_18_USER
+        #define LV_FONT_DEFAULT &Montserrat_Bold_18_user
     #endif
 #elif FONT_TO_USE == 3
-    #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(Montserrat_14_custom)
-
     #if DEVICE_SIZE == 1
-        #define LV_FONT_DEFAULT &Montserrat_14_custom
+        #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(Montserrat_10_custom) LV_FONT_DECLARE(Montserrat_12_custom) LV_FONT_DECLARE(Montserrat_Bold_14_custom)
+        #undef MONTSERRAT_10_CUSTOM
+        #undef MONTSERRAT_12_CUSTOM
+        #undef MONTSERRAT_BOLD_14_CUSTOM
+        #define LV_FONT_DEFAULT &Montserrat_Bold_14_custom
     #else
-        #define LV_FONT_DEFAULT &Montserrat_18_custom
+        #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(Montserrat_14_custom) LV_FONT_DECLARE(Montserrat_16_custom) LV_FONT_DECLARE(Montserrat_Bold_18_custom)
+        #undef MONTSERRAT_14_CUSTOM
+        #undef MONTSERRAT_16_CUSTOM
+        #undef MONTSERRAT_BOLD_18_CUSTOM
+        #define LV_FONT_DEFAULT &Montserrat_Bold_18_custom
     #endif
-#else
-
-    #define LV_FONT_CUSTOM_DECLARE
+#else /* FONT_TO_USE == 1 */
 
     // For small device 10, 12, 14 bold
     #if DEVICE_SIZE == 1
+        #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(Montserrat_12) LV_FONT_DECLARE(Montserrat_Bold_14)
+        #undef LV_FONT_MONTSERRAT_10
         #define LV_FONT_MONTSERRAT_10 1
-        #define LV_FONT_MONTSERRAT_12 1
+        #undef MONTSERRAT_12
+        #undef MONTSERRAT_BOLD_14
 
-        #define LV_FONT_DEFAULT &lv_font_montserrat_14
+        #define LV_FONT_DEFAULT &Montserrat_Bold_14
     // For bigger device 14, 16, 18 bold
     #else
+        #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(Montserrat_16) LV_FONT_DECLARE(Montserrat_Bold_18)
+        #undef LV_FONT_MONTSERRAT_14
         #define LV_FONT_MONTSERRAT_14 1
-        #define LV_FONT_MONTSERRAT_16 1
+        #undef MONTSERRAT_16
+        #undef MONTSERRAT_BOLD_18
 
-        #define LV_FONT_MONTSERRAT_18 1
-        #define LV_FONT_DEFAULT &lv_font_montserrat_18
+        #define LV_FONT_DEFAULT &Montserrat_Bold_18
     #endif
 #endif
-
-
-
 
 /*Enable handling large font and/or fonts with a lot of characters.
  *The limit depends on the font size, font face and bpp.
