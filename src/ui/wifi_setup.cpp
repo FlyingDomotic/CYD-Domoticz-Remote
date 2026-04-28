@@ -128,25 +128,8 @@ void wifi_init_inner(){
     int n = WiFi.scanNetworks();
 
     for (int i = 0; i < n; ++i) {
-        String ssid = WiFi.SSID(i);
-        char* ssid_copy = (char*)malloc(ssid.length() + 1);
-        int j = 0;
-
-        /*
-        for (; j < ssid.length(); ++j)
-        {
-            if (ssid[j] == '\0')
-                continue;
-
-            ssid_copy[j] = ssid[j];
-        }*/
-        strcpy(ssid_copy, ssid.c_str());
-
-        ssid_copy[j] = '\0';
-
-        lv_obj_t * btn = lv_list_add_btn(list, LV_SYMBOL_WIFI, ssid_copy);
+        lv_obj_t * btn = lv_list_add_btn(list, LV_SYMBOL_WIFI, WiFi.SSID(i).c_str());
         lv_obj_add_event_cb(btn, wifi_btn_event_handler, LV_EVENT_ALL, (void*)btn);
-        free(ssid_copy);
     }
 }
 
